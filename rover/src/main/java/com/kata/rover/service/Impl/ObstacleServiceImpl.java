@@ -40,11 +40,11 @@ public class ObstacleServiceImpl implements ObstacleService {
         int maxObstacles = (int)((maxWidth+maxHeight)*OBSTACLE_DENSITY);
 
         for (int i=0; i<maxObstacles;i++){
-            createRandomObstacles(random, maxWidth, maxHeight);
+            generateRandomObstacles(random, maxWidth, maxHeight);
         }
     }
 
-    private void createRandomObstacles(Random random, int maxWidth, int maxHeight) {
+    private void generateRandomObstacles(Random random, int maxWidth, int maxHeight) {
         int x = random.nextInt(maxWidth);
         int y = random.nextInt(maxHeight);
 

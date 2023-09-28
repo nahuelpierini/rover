@@ -1,5 +1,6 @@
 package com.kata.rover.controller;
 
+import com.kata.rover.exceptions.RoverLandingException;
 import com.kata.rover.service.RoverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +13,7 @@ public class RoverController {
     private RoverService roverService;
 
     @PostMapping("/{mapId}")
-    public void setRoverInitialPosition(@PathVariable Integer mapId){
+    public void setRoverInitialPosition(@PathVariable Integer mapId) throws RoverLandingException {
         roverService.createRover(mapId);
     }
 

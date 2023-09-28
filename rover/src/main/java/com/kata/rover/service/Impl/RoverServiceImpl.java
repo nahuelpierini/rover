@@ -6,6 +6,7 @@ import com.kata.rover.entity.Obstacle;
 import com.kata.rover.entity.Rover;
 import com.kata.rover.enums.Direction;
 import com.kata.rover.exceptions.ResourceNotFoundException;
+import com.kata.rover.exceptions.RoverLandingException;
 import com.kata.rover.repository.CoordinateRepository;
 import com.kata.rover.repository.MapRepository;
 import com.kata.rover.repository.ObstacleRepository;
@@ -33,44 +34,45 @@ public class RoverServiceImpl implements RoverService {
 
     public static int[] positionXAndY = new int[2];
 
-    public Rover createRover(Integer mapId){
+    public Rover createRover(Integer mapId) throws RoverLandingException {
 
-        randomRoverInitialPosition(mapId);
+       randomRoverInitialPosition(mapId);
 
        int initialPositionX = positionXAndY[0];
        int initialPositionY = positionXAndY[1];
-       Direction initialDirection = Direction.NORTH;
 
-       Rover newRover = new Rover();
+        Rover newRover = new Rover();
 
         newRover.setInitialPositionX(initialPositionX);
         newRover.setNewPositionX(initialPositionX);
         newRover.setInitialPositionY(initialPositionY);
         newRover.setNewPositionY(initialPositionY);
-        newRover.setPointer(initialDirection);
+        newRover.setPointer(Direction.NORTH);
 
         roverRepository.save(newRover);
 
        return newRover;
     }
 
-    public void randomRoverInitialPosition(Integer mapId){
+    public void randomRoverInitialPosition(Integer mapId) throws RoverLandingException {
 
         Map existingMap = mapRepository.findById(mapId)
                 .orElseThrow(()-> new ResourceNotFoundException("Map not found"));
+
+        if (existingMap.getWidth() <= 0 || existingMap.getHeight() <= 0) {
+            throw new RoverLandingException("Invalid map dimensions");
+        }
+
         List<Obstacle> obstacleList = obstacleRepository.findAll();
 
         Random random = new Random();
 
-        int initialPositionX = 0;
-        int initialPositionY = 0;
-
-        initialPositionX = random.nextInt(existingMap.getWidth());
-        initialPositionY = random.nextInt(existingMap.getHeight());
+        int initialPositionX = random.nextInt(existingMap.getWidth());
+        int initialPositionY = random.nextInt(existingMap.getHeight());
         if (!obstacleList.isEmpty()){
             for(Obstacle obstacle : obstacleList){
                 if (initialPositionX == obstacle.getCoordinateX() || initialPositionY == obstacle.getCoordinateY()){
-                    System.out.println("The Rover can´t land");
+                    throw new RoverLandingException("The Rover can´t land over an obstacle");
                 }
             }
         }
@@ -91,154 +93,137 @@ public class RoverServiceImpl implements RoverService {
 
         List<Obstacle> obstacleList = obstacleRepository.findAll();
 
-        int maxWidth = existingMap.getWidth();
-        int maxHeight = existingMap.getHeight();
-        int positionX = existingRover.getNewPositionX();
-        int positionY = existingRover.getNewPositionY();
+        int maxWidth = (existingMap.getWidth()-1);
+        int maxHeight = (existingMap.getHeight()-1);
+        int roverPositionX = existingRover.getNewPositionX();
+        int roverPositionY = existingRover.getNewPositionY();
         Direction pointer = existingRover.getPointer();
 
         for (char ch : coordinates.getCommands().toCharArray()){
 
             switch (ch) {
+                // F : move forward L: turn left R: turn right
                 case 'F':
                     if (pointer == NORTH){
-                        if (positionY == (maxHeight-1)){
+                        if (roverPositionY == maxHeight){
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateY() == 0 && o.getCoordinateX() == positionX){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateY() == 0 && o.getCoordinateX() == roverPositionX){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionY = 0;
+                            roverPositionY = 0;
                         } else {
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateY() == (positionY + 1) && o.getCoordinateX() == positionX){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateY() == (roverPositionY + 1) && o.getCoordinateX() == roverPositionX){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionY = positionY + 1;
+                            roverPositionY = roverPositionY + 1;
                         }
                     }
                     else if (pointer == SOUTH){
-                        if (positionY == 0){
+                        if (roverPositionY == 0){
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateY() == (maxHeight-1) && o.getCoordinateX() == positionX){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateY() == maxHeight && o.getCoordinateX() == roverPositionX){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionY = (maxHeight-1);
+                            roverPositionY = maxHeight;
                         } else {
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateY() == (positionY - 1) && o.getCoordinateX() == positionX){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateY() == (roverPositionY - 1) && o.getCoordinateX() == roverPositionX){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionY = positionY - 1;
+                            roverPositionY = roverPositionY - 1;
                         }
                     }
                     else if (pointer == EAST){
-                        if (positionX == (maxWidth-1)){
+                        if (roverPositionX == maxWidth){
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateX() == 0 && o.getCoordinateY() == positionY){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateX() == 0 && o.getCoordinateY() == roverPositionY){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionX = 0;
+                            roverPositionX = 0;
                         }else {
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateX() == (positionX + 1) && o.getCoordinateY() == positionY){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateX() == (roverPositionX + 1) && o.getCoordinateY() == roverPositionY){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionX = positionX + 1;
+                            roverPositionX = roverPositionX + 1;
                         }
                     }
                     else {
-                        if (positionX == 0){
+                        if (roverPositionX == 0){
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateX() == (maxWidth-1) && o.getCoordinateY() == positionY){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateX() == maxWidth && o.getCoordinateY() == roverPositionY){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                            positionX = (maxWidth-1);
+                            roverPositionX = maxWidth;
                         }else{
                             for (Obstacle o : obstacleList){
-                                if (o.getCoordinateX() == (positionX -1) && o.getCoordinateY() == positionY){
-                                    existingRover.setPointer(pointer);
-                                    existingRover.setNewPositionX(positionX);
-                                    existingRover.setNewPositionY(positionY);
-                                    roverRepository.save(existingRover);
-                                    return existingRover;
+                                if (o.getCoordinateX() == (roverPositionX - 1) && o.getCoordinateY() == roverPositionY){
+                                    return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
                                 }
                             }
-                        positionX = positionX - 1;
+                        roverPositionX = roverPositionX - 1;
                         }
                     }
                     break;
                 case 'L':
-                    if (pointer == NORTH){
-                        pointer = WEST;
-                    }
-                    else if (pointer == WEST){
-                        pointer = SOUTH;
-                    }
-                    else if (pointer == SOUTH){
-                        pointer = EAST;
-                    }
-                    else {
-                        pointer = NORTH;
-                    }
+                    pointer = turnLeft(pointer);
                     break;
                 case 'R':
-                    if (pointer == NORTH){
-                        pointer = EAST;
-                    }
-                    else if (pointer == EAST){
-                        pointer = SOUTH;
-                    }
-                    else if (pointer == SOUTH){
-                        pointer = WEST;
-                    }
-                    else {
-                        pointer = NORTH;
-                    }
+                    pointer = turnRight(pointer);
                     break;
             }
 
         }
 
+        return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
+    }
+
+    private Rover saveRover(Rover existingRover, Direction pointer, int positionX, int positionY) {
         existingRover.setPointer(pointer);
         existingRover.setNewPositionX(positionX);
         existingRover.setNewPositionY(positionY);
         roverRepository.save(existingRover);
         return existingRover;
+    }
+
+    private Direction turnLeft(Direction pointer) {
+        if (pointer == NORTH){
+            pointer = WEST;
+        }
+        else if (pointer == WEST){
+            pointer = SOUTH;
+        }
+        else if (pointer == SOUTH){
+            pointer = EAST;
+        }
+        else {
+            pointer = NORTH;
+        }
+        return pointer;
+    }
+
+    private Direction turnRight(Direction pointer) {
+        if (pointer == NORTH){
+            pointer = EAST;
+        }
+        else if (pointer == EAST){
+            pointer = SOUTH;
+        }
+        else if (pointer == SOUTH){
+            pointer = WEST;
+        }
+        else {
+            pointer = NORTH;
+        }
+        return pointer;
     }
 
 
