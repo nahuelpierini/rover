@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="console-container">
+        <div id="control-panel">
+            <!-- Agrega botones para controlar el robot -->
+            <img onclick="clickBtnRotateLeft()" class="btn-control" src="images/rotate-left.png" />
+            <img onclick="moveForward()" class="btn-control" src="images/forward.png" />
+            <img onclick="clickBtnRotateRight()" class="btn-control" src="images/rotate-right.png" />
+
+            <!-- Agrega la sección de consola -->
+            <div id="console">
+                <textarea id="command-textarea" rows="4" cols="50" readonly></textarea>
+            </div>
+            <div id="button-container">
+                <button id="delete-button" onclick="clearConsole()">DELETE</button>
+                <button id="send-button" onclick="sendCommands()">SEND</button>
+                <button id="move-rover-button" onclick="moveRover()">Mover Rover</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="container">
+        <img id="rover" src="images/robot.png" />
+        <div id="map-container">
+            <img id="map" src="images/map.jpg" />
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

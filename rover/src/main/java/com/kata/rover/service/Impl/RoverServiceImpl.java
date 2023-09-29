@@ -34,6 +34,12 @@ public class RoverServiceImpl implements RoverService {
 
     public static int[] positionXAndY = new int[2];
 
+
+    @Override
+    public Rover getRover(Integer id) {
+        return roverRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Rover not found"));
+    }
+
     public Rover createRover(Integer mapId) throws RoverLandingException {
 
        randomRoverInitialPosition(mapId);
@@ -185,6 +191,7 @@ public class RoverServiceImpl implements RoverService {
 
         return saveRover(existingRover, pointer, roverPositionX, roverPositionY);
     }
+
 
     private Rover saveRover(Rover existingRover, Direction pointer, int positionX, int positionY) {
         existingRover.setPointer(pointer);
