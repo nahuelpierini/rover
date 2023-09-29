@@ -12,4 +12,6 @@ public interface CoordinateService {
     Coordinate setCoordinates(String commands);
 
 
+    Coordinate updateCoordinates(String commands, Integer id);
+
 }

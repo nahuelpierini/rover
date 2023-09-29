@@ -26,4 +26,9 @@ public class CoordinatesController {
 
         return   coordinateService.setCoordinates(commands);
     }
+
+    @PutMapping("/{id}")
+    public Coordinate updateCoordinates(@RequestBody String commands, @PathVariable Integer id){
+        return coordinateService.updateCoordinates(commands, id);
+    }
 }

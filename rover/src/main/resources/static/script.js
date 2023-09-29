@@ -1,22 +1,25 @@
+
+let mapId = 1;
+let roverId = 6;
+let commandString = '';
+
 async function createMap() {
     try {
-        // Hacer una solicitud GET al endpoint de tu backend para obtener los datos del mapa
-        const response = await fetch('/api/map/1'); // Reemplaza '1' con el ID del mapa que deseas obtener
+        const response = await fetch(`/api/map/${mapId}`);
         if (!response.ok) {
             throw new Error('Error en la solicitud al servidor');
         }
         
         const data = await response.json();
         
-        // Manejar los datos obtenidos del backend para crear el mapa en el frontend
-        // Aquí, asumimos que los datos del mapa incluyen la información sobre el ancho y alto
+
         const width = data.width;
         const height = data.height;
         
-        // Crea el mapa en función de los datos obtenidos
+
         createMapWithDimensions(width, height);
 
-         // Luego, realiza una solicitud para obtener los obstáculos
+ 
          const obstaclesResponse = await fetch('/api/obstacle');
          if (!obstaclesResponse.ok) {
              throw new Error('Error en la solicitud de obstáculos al servidor');
@@ -24,18 +27,17 @@ async function createMap() {
  
          const obstaclesData = await obstaclesResponse.json();
  
-         // Maneja los datos de obstáculos y muestra los obstáculos en el mapa
+   
          displayObstacles(obstaclesData);
 
 
-         const roverInitialPositionResponse = await fetch('/api/rover/1'); // Cambia '1' con el ID del Rover
+         const roverInitialPositionResponse = await fetch(`/api/rover/${roverId}`);
          if (!roverInitialPositionResponse.ok) {
              throw new Error('Error en la solicitud de posición inicial al servidor');
          }
  
          const roverInitialPositionData = await roverInitialPositionResponse.json();
  
-         // Maneja los datos de posición inicial y asigna la posición al robot en el mapa
          assignInitialPositionToRobot(roverInitialPositionData);
  
 
@@ -45,56 +47,46 @@ async function createMap() {
     }
 }
 
-
-function assignInitialPositionToRobot(roverPositionData) {
-    const roverElement = document.getElementById('rover');
-    roverElement.style.position = 'absolute';
-    roverElement.style.width = '100px'; // Ajusta el ancho según tus necesidades
-    roverElement.style.left = (roverPositionData.initialPositionX * 100) + 'px'; // Suponiendo que la posición es relativa al tamaño del mapa
-    roverElement.style.top = (roverPositionData.initialPositionY * 100) + 'px'; // Suponiendo que la posición es relativa al tamaño del mapa
-}
-
-function displayObstacles(obstacles) {
-    // Obtén el contenedor del mapa
-    const container = document.getElementById('container');
-
-    // Recorre la lista de obstáculos y agrégalos al contenedor
-    obstacles.forEach(obstacle => {
-        // Crea un elemento HTML de imagen para representar el obstáculo
-        const obstacleImage = document.createElement('img');
-        obstacleImage.setAttribute('src', 'images/rock.png'); // Establece la fuente de la imagen como "rock.png"
-        obstacleImage.setAttribute('class', 'rock');
-        obstacleImage.style.position = 'absolute';
-        obstacleImage.style.width = '100px'; // Ajusta el ancho según tus necesidades
-        obstacleImage.style.left = (obstacle.coordinateX*100) + 'px';
-        obstacleImage.style.top = (obstacle.coordinateY*100) + 'px';
-        
-        // Agrega el obstáculo al contenedor
-        container.appendChild(obstacleImage);
-    });
-}
-
 function createMapWithDimensions(width, height) {
-    // Crea el mapa en función de las dimensiones proporcionadas
-    // Aquí puedes ajustar la imagen del mapa según el ancho y alto
+
     const mapElement = document.getElementById('map');
     mapElement.style.width = (width*100) + 'px';
     mapElement.style.height = (height*100) + 'px';
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-    // Llama a createMap cuando se carga el documento para inicializar el mapa
-    createMap();
+function displayObstacles(obstacles) {
+    const container = document.getElementById('container');
 
-    // Agrega un evento de clic al botón "MOVE" (si tienes un botón con el ID "move-button")
-    const moveButton = document.getElementById('move-button');
-    if (moveButton) {
-        moveButton.addEventListener('click', moveRover);
-    }
+    obstacles.forEach(obstacle => {
+        const obstacleImage = document.createElement('img');
+        obstacleImage.setAttribute('src', 'images/rock.png');
+        obstacleImage.setAttribute('class', 'rock');
+        obstacleImage.style.position = 'absolute';
+        obstacleImage.style.width = '100px';
+        obstacleImage.style.left = (obstacle.coordinateX*100) + 'px';
+        obstacleImage.style.top = (obstacle.coordinateY*100) + 'px';
+        
+        container.appendChild(obstacleImage);
+    });
+}
+
+function assignInitialPositionToRobot(roverPositionData) {
+    const roverElement = document.getElementById('rover');
+    roverElement.style.position = 'absolute';
+    roverElement.style.width = '100px'; 
+    roverElement.style.left = (roverPositionData.newPositionX * 100) + 'px'; 
+    roverElement.style.top = (roverPositionData.newPositionY * 100) + 'px'; 
+}
+
+
+document.addEventListener("DOMContentLoaded", function () {
+    createMap();
 });
 
-// Define una variable para almacenar los comandos
-let commandString = '';
+
+
+
+
 
 // Función para agregar comandos a la cadena y mostrar en la consola
 function addCommandToConsole(command) {
@@ -150,8 +142,8 @@ async function sendCommands() {
 
     try {
         // Realiza una solicitud POST al backend para guardar los comandos
-        const response = await fetch('/api/coordinates', {
-            method: 'POST',
+        const response = await fetch('/api/coordinates/18', {
+            method: 'PUT',
             headers: {
                 'Content-Type': 'text/plain', // Cambia el tipo de contenido a "text/plain"
             },
@@ -165,6 +157,9 @@ async function sendCommands() {
         // Limpia la consola después de enviar los comandos
         clearConsole();
 
+        // Después de enviar los comandos y actualizar las coordenadas, mueve el rover
+        moveRover();
+
     } catch (error) {
         console.error('Error:', error);
     }
@@ -174,7 +169,7 @@ async function sendCommands() {
 async function moveRover() {
     try {
         // Realiza una solicitud GET al backend para obtener la posición actual del rover
-        const roverPositionResponse = await fetch(`/api/rover/${roverId}`);
+        const roverPositionResponse = await fetch(`/api/rover/6`);
         if (!roverPositionResponse.ok) {
             throw new Error('Error al obtener la posición del rover');
         }
@@ -211,7 +206,7 @@ function updateRoverPosition(roverPositionData) {
 async function moveRover() {
     try {
         // Realiza una solicitud PUT al endpoint moveRover de tu backend
-        const response = await fetch('/api/rover/1/map/1/coordinates/16', {
+        const response = await fetch('/api/rover/6/map/1/coordinates/18', {
             method: 'PUT', // Utiliza el método PUT para enviar los comandos
         });
 
@@ -231,7 +226,7 @@ async function moveRover() {
 async function updateRoverPosition() {
     try {
         // Realiza una solicitud GET para obtener la posición actual del rover
-        const roverPositionResponse = await fetch('/api/rover/1'); // Reemplaza '1' con el ID correcto del rover
+        const roverPositionResponse = await fetch('/api/rover/6'); // Reemplaza '1' con el ID correcto del rover
         if (!roverPositionResponse.ok) {
             throw new Error('Error al obtener la posición del rover');
         }

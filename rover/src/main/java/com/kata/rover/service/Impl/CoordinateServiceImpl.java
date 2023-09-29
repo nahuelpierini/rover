@@ -1,6 +1,7 @@
 package com.kata.rover.service.Impl;
 
 import com.kata.rover.entity.Coordinate;
+import com.kata.rover.exceptions.ResourceNotFoundException;
 import com.kata.rover.repository.CoordinateRepository;
 import com.kata.rover.service.CoordinateService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,14 @@ public class CoordinateServiceImpl implements CoordinateService {
         newCoordinates.setCommands(commands);
 
         return   coordinateRepository.save(newCoordinates);
+    }
+
+    @Override
+    public Coordinate updateCoordinates(String commands, Integer id) {
+        Coordinate existingCoordinate = coordinateRepository.findById(id).orElseThrow(()-> new ResourceNotFoundException("Coordinate not found"));
+
+        existingCoordinate.setCommands(commands);
+
+        return coordinateRepository.save(existingCoordinate);
     }
 }
