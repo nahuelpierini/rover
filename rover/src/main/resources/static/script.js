@@ -136,16 +136,14 @@ async function sendCommands() {
 
 async function moveRover() {
     try {
-        // Realiza una solicitud PUT al endpoint moveRover de tu backend
         const response = await fetch(`/api/rover/${roverId}/map/${mapId}/coordinates/${coordinateId}`, {
-            method: 'PUT', // Utiliza el método PUT para enviar los comandos
+            method: 'PUT',
         });
 
         if (!response.ok) {
             throw new Error('Rover movement error');
         }
 
-        // Actualiza la posición del rover en el frontend
         updateRoverPosition();
 
     } catch (error) {
@@ -153,28 +151,25 @@ async function moveRover() {
     }
 }
 
-// Define la función para actualizar la posición del rover en el frontend
 async function updateRoverPosition() {
     try {
-        // Realiza una solicitud GET para obtener la posición actual del rover
-        const roverPositionResponse = await fetch(`/api/rover/${roverId}`); // Reemplaza '1' con el ID correcto del rover
+        const roverPositionResponse = await fetch(`/api/rover/${roverId}`);
         if (!roverPositionResponse.ok) {
             throw new Error('Rover position server error request');
         }
 
         const roverPositionData = await roverPositionResponse.json();
 
-        // Actualiza la posición del rover en el mapa
         assignRoverPositionToRobot(roverPositionData);
 
     } catch (error) {
-        console.error('Error al actualizar la posición del rover:', error);
+        console.error('Update Rover position server error request:', error);
     }
 }
 
-// Define la función para asignar la posición del rover al robot en el mapa
+
 function assignRoverPositionToRobot(roverPositionData) {
     const roverElement = document.getElementById('rover');
-    roverElement.style.left = (roverPositionData.newPositionX * 100) + 'px'; // Actualiza la posición en base a los datos del backend
-    roverElement.style.top = (roverPositionData.newPositionY * 100) + 'px'; // Actualiza la posición en base a los datos del backend
+    roverElement.style.left = (roverPositionData.newPositionX * 100) + 'px'; 
+    roverElement.style.top = (roverPositionData.newPositionY * 100) + 'px'; 
 }

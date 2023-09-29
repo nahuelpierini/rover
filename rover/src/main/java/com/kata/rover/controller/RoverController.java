@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/rover")
-@CrossOrigin(origins = "http://127.0.0.1:5500") // Agrega el origen de tu frontend aquí
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class RoverController {
 
     @Autowired
@@ -26,8 +26,8 @@ public class RoverController {
     }
 
     @PutMapping("/{roverId}/map/{mapId}/coordinates/{coordinatesId}")
-    public void moveRover(@PathVariable Integer coordinatesId, @PathVariable Integer roverId, @PathVariable Integer mapId){
-        roverService.moveRover(coordinatesId, roverId, mapId);
+    public Rover moveRover(@PathVariable Integer coordinatesId, @PathVariable Integer roverId, @PathVariable Integer mapId){
+        return roverService.moveRover(coordinatesId, roverId, mapId);
     }
 
 }

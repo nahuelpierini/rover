@@ -10,7 +10,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/coordinates")
-@CrossOrigin(origins = "http://127.0.0.1:5500") // Agrega el origen de tu frontend aquí
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class CoordinatesController {
     @Autowired
     private CoordinateService coordinateService;

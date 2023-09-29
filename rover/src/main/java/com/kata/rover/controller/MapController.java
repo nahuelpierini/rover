@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/map")
-@CrossOrigin(origins = "http://127.0.0.1:5500") // Agrega el origen de tu frontend aquí
+@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class MapController {
 
     @Autowired
