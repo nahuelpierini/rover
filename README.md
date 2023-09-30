@@ -33,7 +33,7 @@ Be careful about edge cases and exceptions. We can not afford to lose a mars rov
 | GET    | /api/obstacle                                     | Get obstacles              | 
 | POST   | /api/obstacle/map/{mapId}                         | Create obstacles by map id |
 | GET    | /api/rover/{id}                                   | Get rover by id            |
-| POST   | /api/obstacle/map/{mapId}                         | Create rover               |
+| POST   | /api/obstacle/map/{mapId}                         | Create rover by map id     |
 | PUT    |/{roverId}/map/{mapId}/coordinates/{coordinatesId} | Update rover               |
 
 
