@@ -24,16 +24,16 @@ Be careful about edge cases and exceptions. We can not afford to lose a mars rov
 
 # ENDPOINTS
 
-| METHOD | URL                                               |
-|--------|---------------------------------------------------|
-| GET    | /api/coordinates                                  |
-| POST   | /api/coordinates                                  |
-| PUT    | /api/coordinates/{id}                             |
-| GET    | /api/map/{id}                                     |
-| GET    | /api/obstacle                                     |
-| POST   | /api/obstacle/map/{mapId}                         |
-| GET    | /api/rover/{id}                                   |
-| POST   | /api/obstacle/map/{mapId}                         |
-| PUT    |/{roverId}/map/{mapId}/coordinates/{coordinatesId} |
+| METHOD | URL                                               | DESCRIPTION
+|--------|---------------------------------------------------|----------------------------|
+| GET    | /api/coordinates                                  | Get coordinates            |
+| POST   | /api/coordinates                                  | create coordinates         |
+| PUT    | /api/coordinates/{id}                             | Get coordinates by id      |
+| GET    | /api/map/{id}                                     | Get map by id              |
+| GET    | /api/obstacle                                     | Get obstacles              | 
+| POST   | /api/obstacle/map/{mapId}                         | Create obstacles by map id |
+| GET    | /api/rover/{id}                                   | Get rover                  |
+| POST   | /api/obstacle/map/{mapId}                         | Create rover               |
+| PUT    |/{roverId}/map/{mapId}/coordinates/{coordinatesId} | Update rover               |
 
 
