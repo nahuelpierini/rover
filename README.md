@@ -21,3 +21,19 @@ Be careful about edge cases and exceptions. We can not afford to lose a mars rov
 # ERM 
 
 ![ERM - ROVER](https://github.com/nahuelpierini/rover/assets/101473902/af72f165-b7a4-4325-a39f-3869332a1c4b)
+
+# ENDPOINTS
+
+| METHOD | URL                                               |
+|--------|---------------------------------------------------|
+| GET    | /api/coordinates                                  |
+| POST   | /api/coordinates                                  |
+| PUT    | /api/coordinates/{id}                             |
+| GET    | /api/map/{id}                                     |
+| GET    | /api/obstacle                                     |
+| POST   | /api/obstacle/map/{mapId}                         |
+| GET    | /api/rover/{id}                                   |
+| POST   | /api/obstacle/map/{mapId}                         |
+| PUT    |/{roverId}/map/{mapId}/coordinates/{coordinatesId} |
+
+
