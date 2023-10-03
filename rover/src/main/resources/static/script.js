@@ -106,31 +106,48 @@ function clearConsole() {
 }
 
 async function sendCommands() {
-
     const commandTextarea = document.getElementById('command-textarea');
     const commandString = commandTextarea.value;
 
     try {
+        const commands = commandString.split(''); // Dividir la cadena de comandos en un array de caracteres
+        
+        for (let i = 0; i < commands.length; i++) {
+            const command = commands[i];
+            await sendSingleCommand(command);
+            await sleep(1000); // Esperar 1 segundo (1000 milisegundos) entre comandos
+        }
 
+        clearConsole();
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+async function sendSingleCommand(command) {
+    try {
         const response = await fetch(`/api/coordinates/${coordinateId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'text/plain',
             },
-            body: commandString, 
+            body: command, 
         });
 
         if (!response.ok) {
             throw new Error('Commands server error request');
         }
 
-        clearConsole();
-
-        moveRover();
+        await moveRover();
 
     } catch (error) {
         console.error('Error:', error);
     }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 
